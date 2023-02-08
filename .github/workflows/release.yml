@@ -23,8 +23,8 @@ jobs:
       - name: 6. 创建压缩包
         id: build_zip
         run: |
-          zip -r nginx-${{ github.ref_name }}.zip ./emby-alidrive/nginx
-          
+          cd ./emby-alidrive && zip -r nginx-${{ github.ref_name }}.zip ./nginx
+
       - name: 7. 创建 Release
         run: npx changelogithub
         env:
