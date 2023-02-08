@@ -1,0 +1,39 @@
+name: 自动发布
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: 1. 检出分支
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: 6. 创建压缩包
+        id: build_zip
+        uses: cardinalby/webext-buildtools-pack-extension-dir-action@v1
+        with:
+          extensionDir: "emby-alidrive.nginx"
+          zipFilePath: "nginx-${{ github.ref_name }}.zip"
+
+      - name: 7. 创建 Release
+        run: npx changelogithub
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: 8. 创建 GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: nginx-${{ github.ref_name }}.zip
