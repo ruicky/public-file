@@ -1,0 +1,35 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: emby-nginx
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/embyCache:/var/cache/nginx/emby
+    ports:
+      - 9800:80
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin-server
+    user: 0:0
+    volumes:
+      - ./jellyfin/config:/config
+      - ./jellyfin/cache:/cache
+      - ./media:/media
+    restart: unless-stopped
+    ports:
+      - 9801:8096
+  alist:
+    image: xhofe/alist:latest
+    container_name: emby-alist
+    restart: always
+    volumes:
+      - ./alist:/opt/alist/data
+    ports:
+      - 9802:5244
+    environment:
+      - PUID=0
+      - PGID=0
+      - UMASK=022
